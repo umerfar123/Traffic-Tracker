@@ -14,7 +14,8 @@ classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "trai
               "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
               "teddy bear", "hair drier", "toothbrush"
               ]
-count = 0
+vcount = []
+lineLimits = [0,230,720,230]
 cap =  cv2.VideoCapture('demo/v2.mp4')
 tracker = Sort(max_age=20,min_hits=3,iou_threshold=0.3)
 
@@ -43,6 +44,7 @@ while True:
             #cv2.putText(frame,org=(max(0,x2),max(0,y1-5)),text=current_class,color=(0,255,0),
             #            thickness=1,fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1)
             
+            cv2.line(frame,pt1=(lineLimits[0],lineLimits[1]),pt2=(lineLimits[2],lineLimits[3]),color=(255,0,0),thickness=2)
             
             if (current_class == 'car') and (conf > 0.3):
                 
@@ -60,13 +62,16 @@ while True:
         cv2.putText(frame,org=(max(0,x2),max(0,y2+5)),text=str(id),color=(0,255,0),
                         thickness=1,fontFace=cv2.FONT_HERSHEY_PLAIN,fontScale=1)
         
+        w ,h = x2-x1 , y2-y1 
+        cx , cy = x1+w//2 , y1+h//2
+        cv2.circle(frame,center=(cx,cy),thickness=-1,color=(255,255,0),radius=2)
         
+        if lineLimits[0] < cx < lineLimits[2] and lineLimits[1]-5 < cy < lineLimits[2]+5:
+            if vcount.count(id) == 0:
+                vcount.append(id)
         
-        
-        
-        
-        
-        
+        cv2.putText(frame,text=str(len(vcount)),color=(0,255,255),org=(500,100),
+                    fontFace=cv2.FONT_HERSHEY_COMPLEX_SMALL,fontScale=3,thickness=2)
         
     cv2.imshow('Car Counter',frame)
     if cv2.waitKey(1) & 0xFF == ord('x'):
